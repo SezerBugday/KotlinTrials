@@ -1,5 +1,6 @@
 package com.sezer.trialone_superhero
 
-class SuperHero {
+class SuperHero (var Name: String, var Age: Int, var Job: String )
+{
 
 }
