@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.v4.app.INotificationSideChannel
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +22,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.sezer.basiccalculator.ui.theme.BasicCalculatorTheme
 
@@ -60,6 +63,7 @@ class MainActivity : ComponentActivity() {
         }
 
         Column() {
+
             Text(text = "")
             TextField(value = input_one, onValueChange ={input_one = it} ,label ={ Text(text = "Enter first number")} )
             TextField(value = input_two, onValueChange ={input_two=it}, label ={ Text(text = "Enter second number")} )
