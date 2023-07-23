@@ -65,7 +65,7 @@ fun SecondScreen(navController: NavController) {
 fun MyComposeApp() {
     val navController = rememberNavController()
 
-    NavHost(navController, startDestination = "second") {
+    NavHost(navController, startDestination = "home") {
         composable("home") {
             HomeScreen(navController)
         }
