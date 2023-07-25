@@ -26,68 +26,94 @@ import androidx.navigation.compose.rememberNavController
 import com.sezer.activities.ui.theme.ActivitiesTheme
 
 
-@Composable
-fun HomeScreen(navController: NavController) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Welcome to the First Page!",
-            style = TextStyle(fontSize = 24.sp)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = {navController.navigate("second")  }) {
-            Text(text = "Go to Second Page")
-        }
-    }
-}
 
-@Composable
-fun SecondScreen(navController: NavController) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Congratulations! You are on the Second Page!",
-            style = TextStyle(fontSize = 24.sp)
-        )
-        Button(onClick = { navController.navigate("third")}) {
-            Text(text = "Go to third page")
-        }
-    }
-}
 
-@Composable
-fun MyComposeApp() {
-    val navController = rememberNavController()
-
-    NavHost(navController, startDestination = "second") {
-        composable("home") {
-            HomeScreen(navController)
-        }
-        composable("second") {
-            SecondScreen(navController)
-        }
-        composable("third") {
-            ThirdScreen()
-        }
-    }
-}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        println("On Create Calısti")
         setContent {
-            MyComposeApp()
+
+            ControlScreens()
+
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        println("Onstart Calısti")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        println("OnResume Calısti")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        println("OnPause Calısti")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        println("OnDestroy Calısti")
+    }
+
+
+}
+@Composable
+fun ControlScreens()
+{
+    val navController = rememberNavController()
+
+
+    NavHost(  navController,  "value1" )
+    {
+        composable("value1"){
+            Homepage(navController)
+        }
+        composable("value2"){
+            SecondPage(navController)
+        }
+        composable("value3"){
+          ThirdPage  ( navController )
         }
     }
 }
 @Composable
-fun ThirdScreen()
+fun Homepage(navController: NavController)
 {
-    Text(text = "This is third page")
+    Column() {
+        Text(text = "Page 1")
+        Button(onClick = { navController.navigate("value2")})
+        {
+            Text(text = "Go to second page")
+        }
+
+    }
+
+}
+
+@Composable
+fun SecondPage(navController: NavController)
+{
+    Column() {
+        Text(text = "Page 2")
+        Button(onClick = { navController.navigate("value3")}) {
+            Text(text = "Go to third page")
+        }
+
+    }
+}
+@Composable
+fun ThirdPage(navController: NavController)
+{
+    Column() {
+        Text(text = "Page 3")
+        Button(onClick = { navController.navigate("value1")}) {
+            Text(text = "Go to first page")
+        }
+
+    }
 }
