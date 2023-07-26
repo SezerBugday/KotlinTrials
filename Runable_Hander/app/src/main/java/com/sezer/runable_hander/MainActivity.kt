@@ -61,6 +61,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+
         DisposableEffect(Unit) {
             onDispose {
                 handler.removeCallbacks(runnable)
