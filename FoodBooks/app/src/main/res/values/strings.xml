@@ -5,4 +5,7 @@
     <string name="enter_recipe">Enter recipe…</string>
     <string name="enter_food_s_name">Enter food\'s name</string>
     <string name="button">Button</string>
+    <string name="todo">TODO</string>
+    <string name="name">Name</string>
+    <string name="addimage">AddImage</string>
 </resources>

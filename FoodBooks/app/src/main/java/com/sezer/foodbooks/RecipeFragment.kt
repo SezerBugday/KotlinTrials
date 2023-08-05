@@ -22,6 +22,8 @@ import android.os.Build
 import android.provider.MediaStore
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
+import androidx.fragment.app.findFragment
 import androidx.navigation.Navigation
 import java.io.ByteArrayOutputStream
 
@@ -30,7 +32,8 @@ class RecipeFragment : Fragment() {
 var secilenGorsel : Uri? = null
     var secilenBitMap : Bitmap? = null
     lateinit var Gorsel : ImageView
-
+    lateinit var FoodYazi : EditText
+    lateinit var RecipeYazi : EditText
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -59,14 +62,11 @@ var secilenGorsel : Uri? = null
         Gorsel.setOnClickListener {
            AddImage(it)
         }
+        FoodYazi =view.findViewById<EditText>(R.id.editTextText)
+        RecipeYazi = view.findViewById<EditText>(R.id.editTextText2)
     }
 
     fun SaveFood(view: View) {
-
-       val yemekAdi = view.findViewById<TextView>(R.id.food_name)
-        yemekAdi?.let {
-            println("Yemegin adi :"+yemekAdi.text.toString())
-        }
 
         if (secilenBitMap != null)
         {
@@ -86,19 +86,25 @@ var secilenGorsel : Uri? = null
                     val SqlKomut ="Insert into YemekTablo(YemekIsmi,Malzemeler,GorselVerisi) VALUES (?,?,?)"
                     val statment = dataBase.compileStatement(SqlKomut)
 
-                    //statment.bindString(1,view.findViewById<EditText>(R.id.food_name).text.toString()) // for first question mark in (?,?,?)
-                    //statment.bindString(2,view.findViewById<EditText>(R.id.food_recipe).text.toString()) // for second question mark in (?,?,?)
+                    if(FoodYazi.text.toString() != "" && RecipeYazi.text.toString() != "")
+                    {
+                        statment.bindString(1,"sezer") // for first question mark in (?,?,?)
+                        statment.bindString(2,"deneme")
 
-                    statment.bindString(1,"sezer") // for first question mark in (?,?,?)
-                    statment.bindString(2,"deneme")
+                        statment.bindBlob(3,byteDizisi) // for third question mark in (?,?,?)
+                        statment.execute()
+                        println("Action dan once")
+                        val action = RecipeFragmentDirections.actionRecipeFragmentToFoodList()
+                        Navigation.findNavController(view).navigate(action)
+                        println("Action dan sonra")
+                    }
+                    else{
+                        Toast.makeText(context,"Lutfen gerekli yerleri doldurun",Toast.LENGTH_LONG).show()
+                    }
 
-                    statment.bindBlob(3,byteDizisi) // for third question mark in (?,?,?)
-                    statment.execute()
                 }
-                println("Action dan once")
-                val action = RecipeFragmentDirections.actionRecipeFragmentToFoodList()
-                Navigation.findNavController(view).navigate(action)
-                println("Action dan sonra")
+                Toast.makeText(context,"Yemek Kaydedildi",Toast.LENGTH_LONG).show()
+
             }
             catch (e:Exception)
             {
