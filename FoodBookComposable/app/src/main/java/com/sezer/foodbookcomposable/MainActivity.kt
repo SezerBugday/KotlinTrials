@@ -2,85 +2,59 @@ package com.sezer.foodbookcomposable
 
 
 import android.Manifest
-import android.app.Activity
-import android.content.Intent
-import android.content.pm.LauncherApps
-import android.content.pm.PackageManager
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.view.Menu
-import android.view.MenuItem
+import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCompositionContext
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat.startActivityForResult
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import androidx.navigation.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.core.content.PermissionChecker
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.*
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
+import java.io.ByteArrayOutputStream
 
 class MainActivity : ComponentActivity() {
 
-
-var izinVerildimi = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -167,7 +141,10 @@ var izinVerildimi = false
             }
 
                 bitmap.value?.let { btm ->
+                    val OutputStream = ByteArrayOutputStream()
 
+                    val byteDizisi = OutputStream.toByteArray()
+                    // bitmap'i sayısal veriye donustur
                     Image(
                         bitmap = btm.asImageBitmap(),
                         contentDescription = null,
@@ -181,7 +158,18 @@ var izinVerildimi = false
                     )
                     TextField(value = input_one, onValueChange ={input_one = it} ,label ={ Text(text = "Enter first number")} )
                     TextField(value = input_two, onValueChange ={input_two = it} ,label ={ Text(text = "Enter first number")} )
-                    Button(onClick = { navController.navigate("SaveFood") }) {
+                    Button(onClick = {
+                        if(input_one != "" && input_two != "")
+                        {
+                            SaveFoodSql(input_one,input_two,byteDizisi)
+                            navController.navigate("first")
+
+                        }
+                        else{
+
+                            Toast.makeText(baseContext,"Lutfen gerekli yerleri doldurun",Toast.LENGTH_LONG).show()
+                        }
+                                }) {
                         Text(text = "Save Food")
                     }
                 }
@@ -195,7 +183,6 @@ var izinVerildimi = false
                 painterResource(id = R.drawable.download),
                 contentDescription = null,
                 modifier = Modifier
-
                     .size(400.dp)
                     .padding(20.dp)
                     .clickable {
@@ -221,27 +208,55 @@ var izinVerildimi = false
     }
 
 
-
-        /*  fun UploadImage() {
-        println("Clicked to image")
-
-
-        if (ContextCompat.checkSelfPermission(
-                applicationContext, Manifest.permission.READ_MEDIA_IMAGES
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(arrayOf(Manifest.permission.READ_MEDIA_IMAGES), 1)
+    fun SaveFoodSql(isim: String, tarif: String, byteDizisi: ByteArray) {
+        println("context null degil")
+        val dataBase = openOrCreateDatabase("Foods",Context.MODE_PRIVATE,null)
+        dataBase.execSQL("Create Table if not exists  YemekTablo(id Integer Primary Key ," +
+                " YemekIsmi Varchar,Malzemeler Varchar,GorselVerisi Blob)")
+        val SqlKomut ="Insert into YemekTablo(YemekIsmi,Malzemeler,GorselVerisi) VALUES (?,?,?)"
+        val statment = dataBase.compileStatement(SqlKomut)
 
 
-        } else {
-            val galeriIntent =
-                Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-            startActivityForResult(galeriIntent, 2)
+            try {
+                statment.bindString(1,isim) // for first question mark in (?,?,?)
+                statment.bindString(2,tarif)
 
-        }
+                statment.bindBlob(3,byteDizisi) // for third question mark in (?,?,?)
+                statment.execute()
+                Toast.makeText(baseContext,"Veritabanına kayıt edildi",Toast.LENGTH_LONG).show()
+            }
+            catch (e:Exception)
+            {
+                Toast.makeText(baseContext,"Bir sorun olustu",Toast.LENGTH_LONG).show()
+                println(e)
+            }
+
+
 
 
     }
+
+
+    /*  fun UploadImage() {
+    println("Clicked to image")
+
+
+    if (ContextCompat.checkSelfPermission(
+            applicationContext, Manifest.permission.READ_MEDIA_IMAGES
+        ) != PackageManager.PERMISSION_GRANTED
+    ) {
+        requestPermissions(arrayOf(Manifest.permission.READ_MEDIA_IMAGES), 1)
+
+
+    } else {
+        val galeriIntent =
+            Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        startActivityForResult(galeriIntent, 2)
+
+    }
+
+
+}
 */
 
         @OptIn(ExperimentalMaterial3Api::class)

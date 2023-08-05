@@ -50,7 +50,11 @@ android {
 }
 
 dependencies {
-    implementation ("com.google.accompanist:accompanist-permissions:0.24.13-rc")
+
+
+
+
+    implementation ("com.google.accompanist:accompanist-permissions:0.28.0")
     implementation ("androidx.compose.material:material:1.4.3")
     implementation ("androidx.navigation:navigation-compose:2.7.0-rc01")
     implementation("androidx.core:core-ktx:1.10.1")
