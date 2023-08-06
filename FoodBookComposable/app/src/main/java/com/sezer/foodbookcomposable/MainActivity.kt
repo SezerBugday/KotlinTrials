@@ -2,10 +2,12 @@ package com.sezer.foodbookcomposable
 
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
+import android.graphics.fonts.FontFamily
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -19,6 +21,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -38,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -47,6 +51,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.fontResource
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.*
 import androidx.lifecycle.LifecycleEventObserver
@@ -112,16 +118,28 @@ class MainActivity : ComponentActivity() {
         Column {
             ToolbarWithMenu(navController)
 
-            Text(text = "This is first  Screen")
+            Text(text = "Food's List",
+                fontSize = 32.sp, // Replace with your desired font size in SP
+                lineHeight = 32.sp, // Adjust line height for better readability
+                color = Color.Red )//
             LazyColumn(modifier =Modifier
                 ) {
 
                 this.items(FoodListName) { it ->
-                    Text(text = it,
-                        modifier = Modifier
-                            .clickable { navController.navigate("DisplayFoodDetails/${it}") }
-                        
-                    )
+                    Row {
+                        Text(text = it,
+                            modifier = Modifier
+
+                                .clickable { navController.navigate("DisplayFoodDetails/${it}") },
+
+
+                            fontSize = 28.sp, // Replace with your desired font size in SP
+                            lineHeight = 32.sp, // Adjust line height for better readability
+                            color = Color.Black //
+
+                        )
+                    }
+
 
 
                 }
@@ -212,13 +230,22 @@ class MainActivity : ComponentActivity() {
                 bitmap = bitmap.asImageBitmap(),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(250.dp)
+                    .size(350.dp)
                     .padding(20.dp)
 
             )
 
-            Text(text =secilenYemek )
-            Text(text =secilenYemekTarif )
+
+            Text(text ="Food's name : ${secilenYemek} " ,
+                    fontSize =  32.sp, // Replace with your desired font size in SP
+                lineHeight = 32.sp, // Adjust line height for better readability
+                color = Color.Blue //
+            )
+            Text(text ="Food's Recipe : ${secilenYemekTarif} " ,
+                fontSize =  28.sp, // Replace with your desired font size in SP
+                lineHeight = 32.sp, // Adjust line height for better readability
+                color = Color.DarkGray //
+            )
 
         }
 
@@ -337,6 +364,7 @@ class MainActivity : ComponentActivity() {
     }
 
 
+    @SuppressLint("SuspiciousIndentation")
     fun SaveFoodSql(isim: String, tarif: String, byteDizisi: ByteArray) {
         println("context null degil")
         val dataBase = openOrCreateDatabase("Foods",Context.MODE_PRIVATE,null)
@@ -400,7 +428,7 @@ class MainActivity : ComponentActivity() {
             // Creating a Top bar
             TopAppBar(
                 title = {
-                    Text("GFG | Menu Options")
+                    Text("Food Book SQLLite by Sezer")
 
                 },
 
