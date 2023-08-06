@@ -24,12 +24,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -52,6 +54,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import java.io.ByteArrayOutputStream
+import java.util.Collections.list
 
 class MainActivity : ComponentActivity() {
 
@@ -69,26 +72,82 @@ class MainActivity : ComponentActivity() {
     }
     @Composable
     fun FoodList(navController: NavController) {
+
+        var FoodListName = remember { mutableStateListOf<String>() }
+        var FoodListId = remember { mutableStateListOf<Int>() }
+        val intValue = remember {
+            val backStackEntry = navController.currentBackStackEntry
+            val defaultValue = 0 // Default value if the parameter is not provided or cannot be converted
+            backStackEntry?.arguments?.getString("intValue")?.toIntOrNull() ?: defaultValue
+        }
+        println("Received parameter: $intValue")
+
+        try {
+            val dataBase = openOrCreateDatabase("Foods", Context.MODE_PRIVATE, null)
+            dataBase.execSQL(
+                "Create Table if not exists  YemekTablo(id Integer Primary Key ," +
+                        " YemekIsmi Varchar,Malzemeler Varchar,GorselVerisi Blob)"
+            )
+            val cursor = dataBase.rawQuery("Select * From YemekTablo", null)
+            var idColumnIndex = cursor.getColumnIndex("id")
+            var IsimColumnIndex = cursor.getColumnIndex("YemekIsmi")
+
+            while (cursor.moveToNext()) {
+
+                if (!FoodListId.contains(cursor.getInt(idColumnIndex))) {
+                    println("Is True :"+ cursor.getInt(idColumnIndex).toString())
+                    println("Is True :"+FoodListId.contains(cursor.getInt(idColumnIndex)))
+                    FoodListName.add(cursor.getString(IsimColumnIndex).toString())
+                    FoodListId.add(cursor.getInt(idColumnIndex))
+
+                }
+            }
+
+        } catch (e: Exception) {
+            println(e)
+        }
+
+
         Column {
             ToolbarWithMenu(navController)
 
             Text(text = "This is first  Screen")
-            LazyColumn {
+            LazyColumn(modifier =Modifier
+                ) {
+
+                this.items(FoodListName) { it ->
+                    Text(text = it,
+                        modifier = Modifier
+                            .clickable { println(it) }
+                        
+                    )
+
+                }
 
 
             }
+            /*
+            Button(onClick = { FoodListId.clear()
+                FoodListName.clear()
+            }) {
+                Text(text = "Delete all foods")
+
+            }
+            */
+
         }
     }
-
     @Composable
     fun NavigateScreens() {
 
         var navCollector = rememberNavController()
-        NavHost(navController = navCollector, startDestination = "first")
+        NavHost(navController = navCollector, startDestination = "first/{intValue}")
         {
-            composable("first") {
+            composable("first/{intValue}") {
+                    backStackEntry ->
                 FoodList(navCollector)
             }
+
             composable("AddFood") {
                 AddFood(navCollector)
             }
@@ -141,9 +200,11 @@ class MainActivity : ComponentActivity() {
             }
 
                 bitmap.value?.let { btm ->
+                    val kucukBitMap = MakeSmallerBitmap(bitmap.value!!,250)
                     val OutputStream = ByteArrayOutputStream()
-
+                    kucukBitMap!!.compress(Bitmap.CompressFormat.PNG,50,OutputStream)
                     val byteDizisi = OutputStream.toByteArray()
+
                     // bitmap'i sayısal veriye donustur
                     Image(
                         bitmap = btm.asImageBitmap(),
@@ -162,7 +223,7 @@ class MainActivity : ComponentActivity() {
                         if(input_one != "" && input_two != "")
                         {
                             SaveFoodSql(input_one,input_two,byteDizisi)
-                            navController.navigate("first")
+                            navController.navigate("first/54")
 
                         }
                         else{
@@ -220,9 +281,9 @@ class MainActivity : ComponentActivity() {
             try {
                 statment.bindString(1,isim) // for first question mark in (?,?,?)
                 statment.bindString(2,tarif)
-
                 statment.bindBlob(3,byteDizisi) // for third question mark in (?,?,?)
                 statment.execute()
+               println("KAydedilen byte dizisi${byteDizisi}")
                 Toast.makeText(baseContext,"Veritabanına kayıt edildi",Toast.LENGTH_LONG).show()
             }
             catch (e:Exception)
@@ -371,8 +432,37 @@ class MainActivity : ComponentActivity() {
 
     }
 
+    fun MakeSmallerBitmap(secilenBitMap:Bitmap, maxBoyut :Int): Bitmap? {
+        var widht = secilenBitMap.width
+        var height = secilenBitMap.height
+        var oran :Double = widht.toDouble() / height.toDouble()
+        if(oran>1)
+        {
+            widht =maxBoyut
+            var UpdatedSizeHeight = widht / oran
+            height = UpdatedSizeHeight.toInt()
+        }
+        else
+        {
+            height =maxBoyut
+            var UpdatedSizeSize = height * oran
+            height = UpdatedSizeSize.toInt()
+        }
+
+        return Bitmap.createScaledBitmap(secilenBitMap,widht,height,true)
+    }
+
+
+
 
 }
+
+
+
+
+
+
+
 
 
 
