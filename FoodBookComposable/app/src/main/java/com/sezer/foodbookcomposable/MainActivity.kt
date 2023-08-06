@@ -4,6 +4,7 @@ package com.sezer.foodbookcomposable
 import android.Manifest
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -118,9 +119,10 @@ class MainActivity : ComponentActivity() {
                 this.items(FoodListName) { it ->
                     Text(text = it,
                         modifier = Modifier
-                            .clickable { println(it) }
+                            .clickable { navController.navigate("DisplayFoodDetails/${it}") }
                         
                     )
+
 
                 }
 
@@ -155,9 +157,75 @@ class MainActivity : ComponentActivity() {
             composable("izinAl") {
                 ImagePermission(navCollector)
             }
+            composable("DisplayFoodDetails/{WhichFood}")
+            {
+                DisplayFoodDetails(navCollector)
+            }
 
 
         }
+    }
+
+    private @Composable
+    fun DisplayFoodDetails(navController: NavController) {
+        val which_food = remember {
+            val backStackEntry = navController.currentBackStackEntry
+            val defaultValue = 0 // Default value if the parameter is not provided or cannot be converted
+            backStackEntry?.arguments?.getString("WhichFood")?: defaultValue
+        }
+        println("secilen yemek ${which_food}")
+
+        var  secilenYemek =""
+        var secilenYemekTarif =""
+        lateinit var bitmap : Bitmap
+
+       // var bitmapSelected = remember { mutableStateOf<Bitmap?>(null) }
+        try {
+            val dataBase = openOrCreateDatabase("Foods", Context.MODE_PRIVATE, null)
+            dataBase.execSQL(
+                "Create Table if not exists  YemekTablo(id Integer Primary Key ," +
+                        " YemekIsmi Varchar,Malzemeler Varchar,GorselVerisi Blob)"
+            )
+            val cursor = dataBase.rawQuery("Select * From YemekTablo Where YemekIsmi = '${which_food}' ", null)
+            var RecipeColumnIndex = cursor.getColumnIndex("Malzemeler")
+            var IsimColumnIndex = cursor.getColumnIndex("YemekIsmi")
+            var ImageColumnIndex = cursor.getColumnIndex("GorselVerisi")
+
+            while (cursor.moveToNext()) {
+
+                secilenYemek =cursor.getString(IsimColumnIndex).toString()
+                secilenYemekTarif =cursor.getString(RecipeColumnIndex).toString()
+
+                val ByteDizisi = cursor.getBlob(ImageColumnIndex)
+
+                 bitmap = BitmapFactory.decodeByteArray(ByteDizisi, 0, ByteDizisi.size)
+
+
+
+            }
+
+        } catch (e: Exception) {
+            println(e)
+        }
+        Column {
+            Image(
+                bitmap = bitmap.asImageBitmap(),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(250.dp)
+                    .padding(20.dp)
+
+            )
+
+            Text(text =secilenYemek )
+            Text(text =secilenYemekTarif )
+
+        }
+
+
+
+
+
     }
 
     @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
