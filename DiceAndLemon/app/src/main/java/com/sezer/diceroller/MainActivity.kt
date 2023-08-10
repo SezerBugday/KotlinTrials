@@ -87,7 +87,6 @@ fun LemonLife()
     var lemonResouce by remember {
         mutableStateOf( R.drawable.lemon_tree)
     }
-
     var counter by remember {
         mutableStateOf(1)
     }
@@ -98,12 +97,10 @@ fun LemonLife()
         mutableStateOf(0)
     }
 
-
     Image(
         painter = painterResource(id = lemonResouce), contentDescription = null,
         modifier = Modifier
             .clickable{
-
                 if (counter>=4)
                 {
                     counter = 0
@@ -129,34 +126,19 @@ fun LemonLife()
                 {
                     counter++
                 }
-
-
                 println(counter)
                 when(counter)
                 {
 
                     1-> lemonResouce= R.drawable.lemon_tree
                     2 -> lemonResouce= R.drawable.lemon_squeeze
-
-
-
-
-
                     3-> lemonResouce= R.drawable.lemon_drink
                     4->lemonResouce= R.drawable.lemon_restart
-
-
-
                 }
-
             }
-
-
-
     )
-
-
 }
+
 @Composable
 fun LambdaDene(name:String, sezer: () -> Unit)
 {
