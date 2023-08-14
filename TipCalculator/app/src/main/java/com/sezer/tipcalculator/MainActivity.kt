@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +32,7 @@ import com.sezer.tipcalculator.ui.theme.TipCalculatorTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        println("On Created")
         setContent {
             TipCalculatorTheme {
                 // A surface container using the 'background' color from the theme
@@ -42,11 +45,51 @@ class MainActivity : ComponentActivity() {
                   // Generic()
                     //SingletonDeneme()
                     //Practice()
-                    scrollablelist()
+                   // scrollablelist()
+
+                    ActivityLifeCycle()
+
 
                 }
             }
         }
+    }
+     fun onCreate() {
+        super.onResume()
+        println("On Resume")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        println("On Start")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        println("On Resume")
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+       println("On Restart")
+    }
+
+    override fun onPause() {
+        super.onPause()
+       println("onPause")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        println("On Stop")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        println("On Destroy")
+    }
+    private fun ActivityLifeCycle() {
+
     }
 
     @Composable
@@ -60,10 +103,16 @@ class MainActivity : ComponentActivity() {
         LazyColumn {
             items(image_list) { item ->
                 // Compose the content of each item here
-                Image(painter = painterResource(id = item.imageId), contentDescription = null)
-                Text(text = item.ImageText)
+                Row {
+                    Image(painter = painterResource(id = item.imageId), contentDescription = null)
+                    Text(text = item.ImageText)
+                    Image(painter = painterResource(id = item.imageId), contentDescription = null)
+                    Text(text = item.ImageText)
+                }
+
             }
         }
+
 
     }
 
