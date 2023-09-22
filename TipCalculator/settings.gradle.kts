@@ -13,6 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "BluetoohTrials"
+rootProject.name = "TipCalculator"
 include(":app")
  
